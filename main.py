@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import time
 #from py2neo import Graph, Node, Relationship
-conn = dbconn(uri="neo4j+s://7417a683.databases.neo4j.io", user="neo4j", pwd="7RKgGJvTQDrha88nsBG_6Qg4m7roIh7UYXtD2eE9T-8")
+conn = dbconn(uri="neo4j+s://7417a683.databases.neo4j.io", user="neo4j", pwd="")
 
 #conn.query("CREATE OR REPLACE DATABASE citibikedb")
 
