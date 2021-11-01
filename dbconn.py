@@ -16,13 +16,13 @@ class dbconn:
         if self.__driver is not None:
             self.__driver.close()
         
-    def query(self, query, db=None):
+    def query(self, query, parameters=None, db=None):
         assert self.__driver is not None, "Driver not initialized!"
         session = None
         response = None
         try: 
             session = self.__driver.session(database=db) if db is not None else self.__driver.session() 
-            response = list(session.run(query))
+            response = list(session.run(query, parameters))
         except Exception as e:
             print("Query failed:", e)
         finally: 
