@@ -1,0 +1,44 @@
+neo4j+s://7417a683.databases.neo4j.io
+
+neo4j
+7RKgGJvTQDrha88nsBG_6Qg4m7roIh7UYXtD2eE9T-8
+
+
+CREATE CONSTRAINT UniqueCharacterId ON (s:station) ASSERT s.id IS UNIQUE;
+
+with "file:///202009_citibike_withneighborhoods.csv" AS uri
+LOAD CSV WITH HEADERS FROM uri AS row
+MERGE (s:station {id:row.stationid})
+SET s.latitude = row.latitude
+SET s.longitude = row.longitude
+SET s.boro = row.boro
+SET s.name = row.station_name
+
+MATCH (n)
+RETURN n;
+
+MATCH (n)
+DETACH DELETE n;
+
+MATCH (s:station)
+SET s.location = point({latitude: toFloat(s.latitude), longitude: toFloat(s.longitude), crs: 'WGS-84'});
+
+MATCH (s1:station),(s2:station) 
+WHERE id(s1) > id(s2) 
+WITH s1,s2, distance(s1.location,s2.location) as distance 
+ORDER BY distance ASC
+WHERE distance <= 1000
+WITH s1,collect({node:s2,distance:distance})[..5] as nearest 
+UNWIND nearest as near 
+WITH s1, near, near.node as nearest_node 
+MERGE (s1)-[m:NEAR]-(nearest_node) SET m.distance = near.distance;
+
+MATCH (s1:station { name: 'Brooklyn Bridge Park - Pier 2' })
+MATCH (s2:station { name: 'Rivington St & Ridge St' })
+CALL apoc.algo.dijkstra(s1, s2, 'NEAR', 'distance') YIELD path, weight
+RETURN path, weight
+
+MATCH (s1:station { name: 'Brooklyn Bridge Park - Pier 2' })-[rel:NEAR]->(s2:station { name: 'Rivington St & Ridge St' })
+CALL apoc.refactor.setType(rel, near.distance)
+YIELD input, output
+RETURN input, output

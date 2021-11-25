@@ -1,0 +1,68 @@
+<script src="https://js.api.here.com/v3/3.1/mapsjs-core.js" type="text/javascript" charset="utf-8"></script>
+<script src="https://js.api.here.com/v3/3.1/mapsjs-service.js" type="text/javascript" charset="utf-8"></script>
+
+<html>  
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" context="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CSE 6242 Group Project - Citibike Demand Forecasting</title>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
+<link href='https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="/static/css/style.css">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"type="text/javascript" charset="utf-8"></script>
+<script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"type="text/javascript" charset="utf-8"></script>
+</head>
+ 
+<body style='margin: 0'>
+<nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">CSE 6242 Group Project - Citibike Demand Forecasting</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li><a href='/project_info'>Project Description</a> </li>
+            </ul>
+			<ul class="nav navbar-nav">
+                <li><a href='/map_view'>Map View</a> </li>
+            </ul>
+        </div>
+    </nav>
+<div style="width: 75%; float: left; height: 100%; " id="mapContainer">
+<script>
+      	// Initialize the platform object:
+      	var platform = new H.service.Platform({
+        'apikey': 'A2nCsjmGqWt9EH_nGAeopi4k-OdlaQymzSiRQLdU_AI'
+      	});  
+	
+	const lat = 40.7417397;
+	const long = -73.994156;
+
+	// Obtain the default map types from the platform object
+      	var maptypes = platform.createDefaultLayers();
+
+      	// Instantiate (and display) a map object:
+      	var map = new H.Map(
+        document.getElementById('mapContainer'),
+        maptypes.vector.normal.map,
+        {
+         zoom: 13,
+         center: { lat: lat, lng: long }  
+        });
+		
+	var marker = new H.map.Marker({ lat: lat, lng: long });
+		
+	// Add the marker to the map:
+	map.addObject(marker);
+		
+</script>
+</div>
+<div style="width: 25%; float: left; height: 100%" id="InputContainer">
+<p> Input stuff here </p>
+</div>
+</body>
+</html>
