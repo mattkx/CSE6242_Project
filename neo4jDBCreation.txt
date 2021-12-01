@@ -1,0 +1,25 @@
+
+CREATE CONSTRAINT UniqueCharacterId ON (s:station) ASSERT s.id IS UNIQUE;
+
+with "file:///stations2.csv" AS uri
+LOAD CSV WITH HEADERS FROM uri AS row
+MERGE (s:station {id:row.station_id})
+SET s.latitude = row.lat
+SET s.longitude = row.lng
+SET s.name = row.station_id
+
+
+MATCH (s:station)
+SET s.location = point({latitude: toFloat(s.latitude), longitude: toFloat(s.longitude), crs: 'WGS-84'});
+
+MATCH (s1:station),(s2:station) 
+WHERE id(s1) > id(s2) 
+WITH s1,s2, distance(s1.location,s2.location) as distance 
+ORDER BY distance ASC
+WHERE distance <= 1000
+WITH s1,collect({node:s2,distance:distance})[..5] as nearest 
+UNWIND nearest as near 
+WITH s1, near, near.node as nearest_node 
+MERGE (s1)-[m:NEAR]-(nearest_node) SET m.distance = near.distance;
+
+
