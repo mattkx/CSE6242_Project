@@ -44,124 +44,71 @@ lineTip = d3.tip().attr("id","tooltip")
 
 Promise.all([
     // enter code to read files
-    d3.json("boros2.geojson") 
+    d3.json("boros.geojson"), 
+    d3.csv("2014_stations.csv")
   ]).then(
       // enter code to call ready() with required arguments
       function(data)
       {
           NYC_MapInfo = data[0]
-          stations= [
-  {
-  "station_id": 2017,
-  "station_name": "E 43 St & 2 Ave",
-  "station_latitude": 40.75022392,
-  "station_longitude": -73.97121414
-  },
-  {
-  "station_id": 351,
-  "station_name": "Front St & Maiden Ln",
-  "station_latitude": 40.70530954,
-  "station_longitude": -74.00612572
-  },
-  {
-  "station_id": 259,
-  "station_name": "South St & Whitehall St",
-  "station_latitude": 40.70122128,
-  "station_longitude": -74.01234218
-  },
-  {
-  "station_id": 2001,
-  "station_name": "7 Ave & Farragut St",
-  "station_latitude": 40.69892054,
-  "station_longitude": -73.97332996
-  },
-  {
-  "station_id": 423,
-  "station_name": "W 54 St & 9 Ave",
-  "station_latitude": 40.76584941,
-  "station_longitude": -73.98690506
-  },
-  {
-  "station_id": 247,
-  "station_name": "Perry St & Bleecker St",
-  "station_latitude": 40.73535398,
-  "station_longitude": -74.00483091
-  },
-  {
-  "station_id": 297,
-  "station_name": "E 15 St & 3 Ave",
-  "station_latitude": 40.734232,
-  "station_longitude": -73.986923
-  },
-  {
-  "station_id": 2004,
-  "station_name": "6 Ave & Broome St",
-  "station_latitude": 40.724399,
-  "station_longitude": -74.004704
-  },
-  {
-  "station_id": 345,
-  "station_name": "W 13 St & 6 Ave",
-  "station_latitude": 40.73649403,
-  "station_longitude": -73.99704374
-  },
-  {
-  "station_id": 376,
-  "station_name": "John St & William St",
-  "station_latitude": 40.70862144,
-  "station_longitude": -74.00722156
-  }
-  ]
+          stations_map= data[1]
           
-          ready(null, NYC_MapInfo, stations);
+          ready(null, NYC_MapInfo, stations_map);
       }
   ).catch(function (error) {
   console.log(error);
   });
 
 //call ready on map load
-function ready(error, NYC_MapInfo, stations) {
-    
-    var center = d3.geoCentroid(NYC_MapInfo);
-    projection.center(center);
+function ready(error, NYC_MapInfo, stations_map) {
+  //station_master_list = d3.nest().key(d => d.station_id).entries(stations_map)
+  var center = d3.geoCentroid(NYC_MapInfo);
+  projection.center(center);
 
-    var path = d3.geoPath().projection(projection);
+  var path = d3.geoPath().projection(projection);
 
-    //make the map of the 4 main boros
-    map = svg.append("g")
-    .attr("id", "boros")
-    .selectAll("path")
-    .data(NYC_MapInfo.features)
-    .enter()
-    .append("path")
-    .attr("id", function(d) {
-        return d.properties.boro_name;
-    })
-    .attr("fill", function(d) {
-        return '#abdbe3'
-    })
-    .attr("d",path)
-    
-    //loop this on input
-
-    
-
-    
+  //make the map of the 4 main boros
+  map = svg.append("g")
+  .attr("id", "boros")
+  .selectAll("path")
+  .data(NYC_MapInfo.features)
+  .enter()
+  .append("path")
+  .attr("id", function(d) {
+      return d.properties.boro_name;
+  })
+  .attr("fill", function(d) {
+      return '#abdbe3'
+  })
+  .attr("d",path)
+  
+  //loop this on input    
 }
 
 // this function should create a Choropleth and legend using the world and gameData arguments for a selectedGame
 // also use this function to update Choropleth and legend when a different game is selected from the dropdown
-function writeNewAllocationMap(stations, svg, projection)
+function writeNewAllocationMap(stations, svg, projection, station_list)
 {
   //delete nodes and lines for current station groupings
   d3.selectAll("#stations").remove()
   d3.selectAll('#lines').remove()
 
+  filtered_station_list = station_list.filter(function(d) {
+    for (let i = 0; i < stations.length; i++)
+    {
+      if (d.station_id == stations[i])
+      {
+        return true
+      }
+    }
+    return false
+  })
+
   //add on the circles for the top ten stations
   svg.append("g")
   .attr("id", "stations")
   .selectAll("stations")
-  .data(stations)
+  .data(filtered_station_list)
   .enter()
   .append("circle")
       .attr("id", function(d) {return String(d.station_id)})
@@ -178,13 +125,13 @@ function writeNewAllocationMap(stations, svg, projection)
 
   //add on the lines
   let lines = svg.append('g').attr('id', "lines")
-  for (let j = 1; j < stations.length; j++)
+  for (let j = 1; j < filtered_station_list.length; j++)
   {
-    let sourceCircle = document.getElementById(String(stations[j-1]['station_id']))
+    let sourceCircle = document.getElementById(String(filtered_station_list[j-1]['station_id']))
     let sourceCircleBox = sourceCircle.getBBox();
     let xCoordSource = sourceCircleBox.x + sourceCircleBox.width / 2
     let yCoordSource = sourceCircleBox.y + sourceCircleBox.height / 2
-    let destinationCircleBox =document.getElementById(String(stations[j]['station_id'])).getBBox();
+    let destinationCircleBox =document.getElementById(String(filtered_station_list[j]['station_id'])).getBBox();
     let xCoordDst = destinationCircleBox.x + destinationCircleBox.width / 2
     let yCoordDst = destinationCircleBox.y + destinationCircleBox.height / 2
     var link = d3.linkHorizontal()({
@@ -196,7 +143,7 @@ function writeNewAllocationMap(stations, svg, projection)
     .attr('stroke', 'black')
     .attr('fill', 'none')
     .on('mouseover', function(d) {
-      lineTip.show(stations[j-1], stations[j], j)
+      lineTip.show(filtered_station_list[j-1], filtered_station_list[j], j)
     })
     .on('mouseout', lineTip.hide)
   }
@@ -208,7 +155,6 @@ function writeNewAllocationMap(stations, svg, projection)
 function validateAndSubmit(data) {
   const formData = new FormData(data)
   let newURL =baseServerURL + "?"
-  console.log(formData.entries())
   
   for (var pair of formData.entries()) {
     if (pair[0] === ('avgWind') || pair[0] === ('precipitation') || pair[0] === ('snow') || pair[0] === ('temp'))
@@ -223,19 +169,18 @@ function validateAndSubmit(data) {
   }
   newURL = newURL.substring(0,newURL.length-1)
 
-  console.log(newURL)
-
-  stations = fetchAsync(newURL)
-  console.log(stations)
-
-  //writeNewAllocationMap(stations, svg, projection)
+  //took a while to figure out async request
+  fetchAsync(newURL).then(stations => {
+    writeNewAllocationMap(stations['data'], svg, projection, stations_map)
+  })
+  
 
   
 
 }
 
 async function fetchAsync (url) {
-  fetch(url).then(data=>{return data.json()})
-  .then(res=>{console.log(res)})
-  .catch(error=>console.log(error))
+  const resp = await fetch(url)
+  const data = await resp.json()
+  return data
 }
