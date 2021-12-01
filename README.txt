@@ -6,7 +6,9 @@ The front end consists of a simple webpage that visualizes the 4 boroughs of New
 The backend application is a Python Flask app that serves data to the frontend upon request. When the user presses submit, the frontend makes a request to a REST endpoint with query parameters that represent their selections on the input variables to use for demand. The backend will strip those query arguments and then iterate across the entire known group of stations in the Citibike network, using the demand model to calculate what the projected demand of rides at any particular station is. Once the demand for all stations is calculated, the backend routes the 10 stations with the top demand to the Neo4J database. The Neo4J database, using a Cypher query, is then able to effectively create an ordering of which stations to visit first to redistribute bicycles to replenish and provide more rides. Once the backend has the output of the Cypher query, it returns the order to reallocate bicycles to the front end.
 
 ---INSTALLATION---
-(Neo4J stuff here)
+By default the project connects to a cloud hosted Neo4J DB.  However, it is possible to create a local version which will function exactly the same.
+
+Install Neo4J Desktop + graph data science package, installer can be downloaded from : https://neo4j.com/download/.  Once installed follow quick start guide on creating a new graph database from: https://neo4j.com/developer/neo4j-desktop/.   Once the new graphDB has been setup, copy stations2.csv to the DB import directory.  It is normally under C:\Users\<userid>\.Neo4jDesktop\relate-data\dbmss\<dbid>\import.  Open neo4j browser and run the cypher queries in the file: neo4jDBCreation.txt.   Next comment out line 8 of data_processing.py and uncomment line 7.  This is the connection string needed for a local hosted graphDB.  Replace <password> on line 7 with the password you gave the graphDB upon creation.  
 
 Once the Neo4J database is live, the user should open two terminal windows and type the following commands into the separate windows:
 python app.py
