@@ -4,7 +4,8 @@ import pickle
 from py2neo import Graph
 import itertools
 import re
-#conn = dbconn(uri="neo4j+s://7417a683.databases.neo4j.io", user="neo4j", pwd="7RKgGJvTQDrha88nsBG_6Qg4m7roIh7UYXtD2eE9T-8")
+
+#citibike = Graph("bolt://localhost:7687", auth=("neo4j", "<password>"))
 citibike = Graph("neo4j+s://7417a683.databases.neo4j.io", auth=("neo4j", "7RKgGJvTQDrha88nsBG_6Qg4m7roIh7UYXtD2eE9T-8"))
 def getDemand(args):
     demand = {}
