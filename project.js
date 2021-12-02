@@ -2,7 +2,7 @@ alert("This chart will display the order to reallocate bicycles for Citibike bas
   Wind Speed, Precipitation, Snow, and Temperature expect float values.")
 // enter code to define margin and dimensions for svg
 var svgWidth = 960;
-var svgHeight = 1160;
+var svgHeight = 1000;
 var margin = 24;
 
 // enter code to create svg
@@ -13,8 +13,8 @@ var svg = d3.select("#choropleth").append("svg")
 
 //define "globals"
 var projection = d3.geoMercator()
-.scale(100*svgWidth)
-.translate([.4*svgWidth , .40*svgHeight ])
+.scale(300*svgWidth)
+.translate([.8*svgWidth , .50*svgHeight ])
 
 var baseServerURL = 'http://127.0.0.1:5000/demand'
 
@@ -38,14 +38,21 @@ lineTip = d3.tip().attr("id","tooltip")
     let targetName = target.station_name;
 
     return "<p><b>" + "Source Station: " + "</b>" + sourceName + "</p>" +
-    "<p><b>" + "Target Station: " + "</b>" + targetName + "</p>" +
-    "<p><b>" + "Reallocation Position: " + "</b>" + String(pos) + "</p>"
+    "<p><b>" + "Target Station: " + "</b>" + targetName + "</p>"
+})
+
+pathTip = d3.tip().attr("id","tooltip")
+.html(function(source) {
+  //will need to add handling for lookup from list of stations for actual name
+    let sourceName = source.station_id;
+
+    return "<p><b>" + "Intermediate Station: " + "</b>" + sourceName + "</p>"
 })
 
 Promise.all([
     // enter code to read files
     d3.json("boros.geojson"), 
-    d3.csv("2014_stations.csv")
+    d3.csv("stations_main.csv")
   ]).then(
       // enter code to call ready() with required arguments
       function(data)
@@ -87,22 +94,78 @@ function ready(error, NYC_MapInfo, stations_map) {
 
 // this function should create a Choropleth and legend using the world and gameData arguments for a selectedGame
 // also use this function to update Choropleth and legend when a different game is selected from the dropdown
-function writeNewAllocationMap(stations, svg, projection, station_list)
+function writeNewAllocationMap(stations, path, svg, projection, station_list)
 {
   //delete nodes and lines for current station groupings
   d3.selectAll("#stations").remove()
   d3.selectAll('#lines').remove()
 
-  filtered_station_list = station_list.filter(function(d) {
-    for (let i = 0; i < stations.length; i++)
-    {
+  filtered_station_list = []
+  for (let i = 0; i < stations.length; i++)
+  {
+    new_station = station_list.filter(function(d) {
+      
       if (d.station_id == stations[i])
+      {
+        return true
+      }
+      else{
+        return false
+      }
+    })
+    if (new_station.length > 0)
+    {
+      filtered_station_list.push(new_station[0])
+    }
+  }
+
+
+
+  filtered_path_list = station_list.filter(function(d) {
+    for (let i = 0; i < path.length; i++)
+    {
+      if (d.station_id == path[i])
+      {
+        if (stations.indexOf(path[i]) < 0)
+        {
+          return true
+
+        }
+      }
+      
+    }
+    return false
+  })
+  /* full_path = station_list.filter(function(d) {
+    for (let i = 0; i < path.length; i++)
+    {
+      if (d.station_id == path[i])
       {
         return true
       }
     }
     return false
-  })
+  }) */
+
+  full_path = []
+  for (let i = 0; i < path.length; i++)
+  {
+    new_path = station_list.filter(function(d) {
+      if (d.station_id == path[i])
+      {
+        return true
+      }
+      else{
+        return false
+      }
+    })
+    if (new_path.length > 0)
+    {
+      full_path.push(new_path[0])
+    }
+  }
+
+
 
   //add on the circles for the top ten stations
   svg.append("g")
@@ -114,24 +177,44 @@ function writeNewAllocationMap(stations, svg, projection, station_list)
       .attr("id", function(d) {return String(d.station_id)})
       .attr("cx", function(d){ return projection([d.station_longitude, d.station_latitude])[0] })
       .attr("cy", function(d){ return projection([d.station_longitude, d.station_latitude])[1] })
-      .attr("r", 5)
+      .attr("r", 7)
       .on('mouseover', function(d,i) {
-        nodeTip.show(d, i)
+        nodeTip.show(d, i+1)
       })
       .on('mouseout', nodeTip.hide)
-      .style("fill", "69b3a2")
+      .style("fill", "#a88132")
+      .attr("stroke-width", 3)
+      .attr("fill-opacity", 1)
+
+  //add circles for the stations we hit on reallocation path
+  svg.append("g")
+  .attr("id", "path")
+  .selectAll("paths")
+  .data(filtered_path_list)
+  .enter()
+  .append("circle")
+      .attr("id", function(d) {return String(d.station_id)})
+      .attr("cx", function(d){ return projection([d.station_longitude, d.station_latitude])[0] })
+      .attr("cy", function(d){ return projection([d.station_longitude, d.station_latitude])[1] })
+      .attr("r", 2)
+      .on('mouseover', function(d) {
+        pathTip.show(d)
+      })
+      .on('mouseout', pathTip.hide)
+      .style("fill", "black")
       .attr("stroke-width", 3)
       .attr("fill-opacity", 1)
 
   //add on the lines
   let lines = svg.append('g').attr('id', "lines")
-  for (let j = 1; j < filtered_station_list.length; j++)
+  let i = 1
+  for (let j = 1; j < full_path.length; j++)
   {
-    let sourceCircle = document.getElementById(String(filtered_station_list[j-1]['station_id']))
+    let sourceCircle = document.getElementById(String(full_path[j-1]['station_id']))
     let sourceCircleBox = sourceCircle.getBBox();
     let xCoordSource = sourceCircleBox.x + sourceCircleBox.width / 2
     let yCoordSource = sourceCircleBox.y + sourceCircleBox.height / 2
-    let destinationCircleBox =document.getElementById(String(filtered_station_list[j]['station_id'])).getBBox();
+    let destinationCircleBox =document.getElementById(String(full_path[j]['station_id'])).getBBox();
     let xCoordDst = destinationCircleBox.x + destinationCircleBox.width / 2
     let yCoordDst = destinationCircleBox.y + destinationCircleBox.height / 2
     var link = d3.linkHorizontal()({
@@ -143,13 +226,15 @@ function writeNewAllocationMap(stations, svg, projection, station_list)
     .attr('stroke', 'black')
     .attr('fill', 'none')
     .on('mouseover', function(d) {
-      lineTip.show(filtered_station_list[j-1], filtered_station_list[j], j)
+      
+      lineTip.show(full_path[j-1], full_path[j], path_order[j-1])
     })
     .on('mouseout', lineTip.hide)
   }
 
   svg.call(nodeTip)
   svg.call(lineTip)
+  svg.call(pathTip)
 }
 
 function validateAndSubmit(data) {
@@ -172,7 +257,7 @@ function validateAndSubmit(data) {
   console.log("request URL is " + newURL)
   //took a while to figure out async request
   fetchAsync(newURL).then(stations => {
-    writeNewAllocationMap(stations['data'], svg, projection, stations_map)
+    writeNewAllocationMap(stations['data'].map(String), stations['path'].map(String), svg, projection, stations_map)
   })
   
 

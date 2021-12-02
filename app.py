@@ -27,12 +27,12 @@ def demandModel():
     
     #for station in stations:
     demand = getDemand(argsDict)
-    print(demand)
+    print("Top 10 Stations are " + str(demand))
     orderedListOfStations = getNeo4JRoute(demand)
-    print(orderedListOfStations)
+    print("Route to all stations is " + str(orderedListOfStations))
     # at this point you have a list of stations in order of which to reallocate first
     #change next call from random list to the list of stations
-    response = jsonify({'data':orderedListOfStations})
+    response = jsonify({'data':demand, 'path':orderedListOfStations})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 if __name__ == '__main__':

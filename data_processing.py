@@ -18,13 +18,13 @@ args['saturday'] = 0
 args['sunday'] = 0
 def getDemand(args):
     #demand = {}
-    df_station = pd.read_csv('stations.csv')
-    stations = df_station['start_station_id'].unique().tolist()
+    df_station = pd.read_csv('2014_stations.csv')
+    stations = df_station['station_id'].unique().tolist()
     filename = 'finalized_model.sav'
     model = pickle.load(open(filename, 'rb'))
     cleanedArgs = {'hour': int(args['hour']), 'AVG_WIND':float(args['avgwind']), 'PRECIP':float(args['precipitation']), 'SNOW_TOTAL':float(args['snow']), 'MAX_TEMP':float(args['temp']), 'Month': int(args['month']),'DayOfWeek_Saturday':int(args['saturday']), 'DayOfWeek_Sunday':int(args['sunday'])}
     testlist = []
-    print(cleanedArgs)
+    print("User input for model was " + str(cleanedArgs))
     for station in stations:
         X_test_ = pd.DataFrame([cleanedArgs])
         X_test_.insert(0, 'start_station_id', station)
@@ -53,7 +53,7 @@ def getNeo4JRoute(demand):
     trips = f(demand,2)
     listoftrips = []
     for stations in trips:
-        print(stations)
+        print("Routing between " + str(stations))
         start = str(stations[0])
         stop = str(stations[1])
     
