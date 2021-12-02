@@ -13,11 +13,12 @@ def getDemand(args):
     stations = df_station['start_station_id'].unique().tolist()
     filename = 'finalized_model.sav'
     model = pickle.load(open(filename, 'rb'))
-    args = {'hour': 0, 'AVG_WIND':1.0, 'PRECIP':1.0, 'SNOW_TOTAL':0, 'MAX_TEMP':32, 'Month':1,
-         'DayOfWeek_Saturday':0, 'DayOfWeek_Sunday':0}
+    cleanedArgs = {'hour': int(args['hour']), 'AVG_WIND':float(args['avgwind']), 'PRECIP':float(args['precipitation']), 'SNOW_TOTAL':float(args['snow']), 'MAX_TEMP':float(args['temp']), 'Month': int(args['month']),'DayOfWeek_Saturday':int(args['saturday']), 'DayOfWeek_Sunday':int(args['sunday'])}
+    print(cleanedArgs)
     for station in stations:
-        X_test = pd.DataFrame([args])
+        X_test = pd.DataFrame([cleanedArgs])
         X_test['start_station_id'] = station
+        print(X_test)
         ypred = model.predict(X_test)
         rowdict = {station:ypred}
         demand.update(rowdict)

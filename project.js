@@ -169,6 +169,7 @@ function validateAndSubmit(data) {
   }
   newURL = newURL.substring(0,newURL.length-1)
 
+  console.log("request URL is " + newURL)
   //took a while to figure out async request
   fetchAsync(newURL).then(stations => {
     writeNewAllocationMap(stations['data'], svg, projection, stations_map)

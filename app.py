@@ -1,6 +1,5 @@
 import json
-from flask import Flask, render_template, jsonify
-import jsonify
+from flask import Flask, render_template, jsonify, request
 
 from data_processing import *
 
@@ -24,16 +23,16 @@ def map_view():
 
 @app.route('/demand', methods=['GET'])
 def demandModel():
-    argsDict = request.args  #this is how to access the input args in dict form
-    #this is what I'm envisioning:
+    argsDict = dict(request.args)  #this is how to access the input args in dict form
     
     #for station in stations:
     demand = getDemand(argsDict)
-   
+    print(demand)
     orderedListOfStations = getNeo4JRoute(demand)
+    print(orderedListOfStations)
     # at this point you have a list of stations in order of which to reallocate first
     #change next call from random list to the list of stations
-    response = jsonify({'data':[519,2013,123,584,837,848]})
+    response = jsonify({'data':orderedListOfStations})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 if __name__ == '__main__':
