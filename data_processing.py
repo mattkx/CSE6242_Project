@@ -39,7 +39,7 @@ def getDemand(args):
     demand['counts'] = ypred.tolist()
     demand =  demand.sort_values(['counts'], ascending=[False])
     demand10 = demand[['start_station_id']].head(10)
-    demand10 = demand10.to_list()
+    demand10 = demand10['start_station_id'].tolist()
     return demand10
 
 def f(l, n):
@@ -53,6 +53,7 @@ def getNeo4JRoute(demand):
     trips = f(demand,2)
     listoftrips = []
     for stations in trips:
+        print(stations)
         start = str(stations[0])
         stop = str(stations[1])
     
@@ -65,15 +66,18 @@ def getNeo4JRoute(demand):
     '''
     
         results = citibike.run(query_string).to_data_frame()
-        results['start'] = start
-        results['stop'] = stop
+        results['start'] = start + ','
+        results['stop'] = ',' + stop
         listoftrips.append(results)
     
     alltrips = pd.concat(listoftrips)
     alltrips['path'] = alltrips['path'].astype(str)
     alltrips['ids'] = alltrips['path'].apply(split_ids)
+    alltrips['ids_string'] = [','.join(map(str, l)) for l in alltrips['ids']]
+    alltrips['start'] += alltrips['ids_string']
+    alltrips['start'] += alltrips['stop']
+    alltrips['ids'] = [x.split(',') for x in  alltrips['start']]
     routelist = alltrips.ids.sum()
     routelist_final = list(dict.fromkeys(routelist))    
     alltrips.to_csv('trips.csv', index = False)
     return routelist_final
-
