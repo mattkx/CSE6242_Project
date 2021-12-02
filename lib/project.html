@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+    <!-- add title -->
+    <title>Project</title>
+    <!-- import required libraries here 
+    <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+    <script type="text/javascript" src="https://d3js.org/d3-geo.v1.min.js"></script>-->
+    
+    
+    <script type="text/javascript" src="../lib/d3.v5.min.js"></script>
+    <script type="text/javascript" src="../lib/d3-legend.min.js"></script>
+    <script type="text/javascript" src="../lib/d3-tip.min.js"></script>
+    <script type="text/javascript" src="../lib/d3-geo-projection.v2.min.js"></script>
+    <script type="text/javascript" src="../lib/topojson.v2.min.js"></script>
+    <style>
+        /* define CSS rules here */
+        .dropDown {
+            margin-left: 40%;
+        }
+
+        #tooltip {
+            background-color: grey;
+            margin: zero;
+            font: 10px sans-serif
+        }
+    </style>
+
+</head>
+
+
+<body>
+    <!-- Add heading for the visualization -->
+    <h2>CitiBike Reallocation Path in New York</h2>
+    <!-- Create dropdown element here. Options should be added after reading in game file, they should not be created here.-->
+    <form id="modelForm" name="modelForm" onsubmit="return false">
+        <label for="hour">Hour of Day</label></br>
+        <select name="hour" id="hour">Hour of Day</option>
+            <option value="0" selected>0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
+            <option value="21">21</option>
+            <option value="22">22</option>
+            <option value="23">23</option>
+        </select></br>
+        <label for="avgwind">Average Wind Speed (MPH)</label><br>
+        <input type="text" id="avgwind" name="avgwind"><br>
+        <label for="precipitation">Precipitation Amount (Inches)</label><br>
+        <input type="text" id="precipitation" name="precipitation"><br>
+        <label for="snow">Snow Total (Inches)</label><br>
+        <input type="text" id="snow" name="snow"><br>
+        <label for="temp">Max Temperature (Fahrenheit)</label><br>
+        <input type="text" id="temp" name="temp"><br>
+        <label for="month">Month of Year</label></br>
+        <select name="month" id="month">Month of Year</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+        </select></br>
+
+        <p>Is it a Saturday?</p>
+        <input type="radio" id="saturday1" name="saturday" value="1">
+        <label for="saturday1">Yes</label>
+        <input type="radio" id="saturday2" name="saturday" value="0">
+        <label for="saturday2">No</label>
+        <p>Is it a Sunday?</p>
+        <input type="radio" id="sunday1" name="sunday1" value="1">
+        <label for="sunday1">Yes</label>
+        <input type="radio" id="sunday2" name="sunday" value="0">
+        <label for="sunday2">No</label>
+        <br><br>
+        <button type="submit" onClick="validateAndSubmit(this.form)">Submit</button>
+    </form>
+    <!--['hour', 'start_station_id', 'AVG_WIND', 'PRECIP', 'SNOW_TOTAL', 'MAX_TEMP', 'Month',
+         'DayOfWeek_Saturday', 'DayOfWeek_Sunday']]-->
+    
+    <div id="choropleth"></div>
+    <script src="project.js"></script>
+
+</body>
+
+</html>
