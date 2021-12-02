@@ -6,6 +6,8 @@ The front end consists of a simple webpage that visualizes the 4 boroughs of New
 The backend application is a Python Flask app that serves data to the frontend upon request. When the user presses submit, the frontend makes a request to a REST endpoint with query parameters that represent their selections on the input variables to use for demand. The backend will strip those query arguments and then iterate across the entire known group of stations in the Citibike network, using the demand model to calculate what the projected demand of rides at any particular station is. Once the demand for all stations is calculated, the backend routes the 10 stations with the top demand to the Neo4J database. The Neo4J database, using a Cypher query, is then able to effectively create an ordering of which stations to visit first to redistribute bicycles to replenish and provide more rides. Once the backend has the output of the Cypher query, it returns the order to reallocate bicycles to the front end.
 
 ---INSTALLATION---
+A demo video is provided for the user later in this document.
+
 This installation assumes the user is utilizing the cloud-hosted Neo4J DB. If the user would prefer to instantiate a local version, instructions are below the execution section. The default and assumed approach is use of the cloud-hosted Neo4J.
 
 This installation assumes the user is on a Linux environment and has installed Python 3.7.X and has some version of pip installed. The user should create a virtual environment and install the requirements for this project by using the following commands:
@@ -22,6 +24,8 @@ Once the backend has started and a webserver has initialized, the user can navig
 ---EXECUTION---
 The user is able to interact with the model through manipulation of the various fields on the front end application. The user can utilize the drop downs and radio buttons for certain questions, and for text box fields, the user is expected to input float values - such as .2, 1.4, or 123.384. Once the user has entered all of the values for their expected prediction, the user should press "Submit", at which point the front end will submit a request to the backend to return the best route between the 10 stations with the most demand, and the front end will display the route of reallocation for those 10 stations. This request can take up to 45 seconds, as first the model must project demand and then the Neo4j database must calculate the most efficient route. Once the stations and route are displayed, the user can view them on the map. Each station and link between stations, representing a trip between two stations for reallocation purposes, has a hover feature which will show information on the stations and order. Once the user has observed one set of input, they can change and alter the inputs to any other grouping in order to project what those top ten stations are, and observe what the recommended order of reallocation is for them. 
 
+---DEMO VIDEO---
+https://www.youtube.com/watch?v=2vzecXpd24o
 
 ---OPTIONAL Neo4j LOCAL---
 By default the project connects to a cloud hosted Neo4J DB.  However, it is possible to create a local version which will function exactly the same.
